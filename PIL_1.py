@@ -12,11 +12,11 @@ def rndChar():
 
 def rndColor2():
 #This function is to create a RGB by random，as letter color
-    return(random.randint(32，217),random.randint(32，217),random.randint(32，217))
+    return(random.randint(32,217),random.randint(32,217),random.randint(32,217))
     
     
 W = 60*4
-h = 60
+H = 60
 #Define the width and height of the image
 im = Image.new('RGB',(W,H),(0,0,0))
 #Create a new image,using the RGB methed,width and height are defined in W AND H, the backgroundcolor is (0,0,0)
@@ -34,6 +34,5 @@ for i in range(4):
     #Seprate the image into four parts, go throug each parts and put a random letter in it, 
     #set the Color coordinates of the letter random
     #Set the font of the letter as defined in variable font
-image.save('1.jpg')
+im.save('1.jpg')
 #Save the image as '1.jpg'
-
