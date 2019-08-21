@@ -7,9 +7,10 @@ V02  20190820
    如用户输入不正确则重新要求用户输入字符
 ---在下载小说前后打印正在下载和下载完成字样
 V03  20190821
----由于偶尔要引用此程序的部分函数，将获取小说名称部分移到GetChapterLinks函数中
-   方便后续引用
+---由于偶尔要引用此程序的部分函数，将获取小说名称部分移到GetChapterLinks函数中，方便后续引用
 ---将函数主体整合成一个main函数
+---优化函数，将函数功能独立开，将相关变量挪到定义的函数外部获取
+---使下载小说函数独立，只要给定link即可下载小说，方便后续调试
 '''
 ####################################################################################################################
 from bs4 import BeautifulSoup
@@ -50,16 +51,6 @@ def GetBookInfo():
         else:
             BookID = int(input('小说序号输入有误，请重新输入:'))
 
-def GetChapterLinks(url):
-    # 获取小说的章节链接
-    ChapterLinks = []
-    Soup = GetSoup(url)
-    BookName = Soup.find('div',id='info').find('h1').text
-    DDs = Soup.find('div', id='list').find('dl').findAll('dd')
-    for DD in DDs:
-        ChapterLinks.append('https://www.xbiquge6.com' + DD.find('a').get('href'))
-    return ChapterLinks,BookName
-
 def GetContent(url):
     # 获取小说章节正文
     Soup = GetSoup(url)
@@ -70,16 +61,28 @@ def GetContent(url):
     # 将取到的章节名和正文结合作为一章
     return Content
 
-def main():
-    BookUrl = GetBookInfo()
-    ChapterLinks,BookName = GetChapterLinks(BookUrl)
-    with open(BookName + '.txt', 'a', encoding='utf-8')as T:
-        # 以小说名保存小说内容，编码方式此处默认为GBK，修改为utf-8
-        print('正在下载{}。。。'.format(BookName))
-        for ChapterLink in ChapterLinks:
-            # 按章节保存小说
-            T.write(GetContent(ChapterLink))
-            T.write('\n\n')
-            # 在两个章节直接预留换行，更加美观。
-        print('下载完成！')
-main()
+def downLoad(url):
+    def GetChapterLinks(url):
+        # 获取小说的章节链接
+        ChapterLinks = []
+        Soup = GetSoup(url)
+        BookName = Soup.find('div', id='info').find('h1').text
+        DDs = Soup.find('div', id='list').find('dl').findAll('dd')
+        for DD in DDs:
+            ChapterLinks.append('https://www.xbiquge6.com' + DD.find('a').get('href'))
+        return ChapterLinks, BookName
+    def main(ChapterLinks, BookName):
+        with open(BookName + '.txt', 'a', encoding='utf-8')as T:
+            # 以小说名保存小说内容，编码方式此处默认为GBK，修改为utf-8
+            print('正在下载{}。。。'.format(BookName))
+            for ChapterLink in ChapterLinks:
+                # 按章节保存小说
+                T.write(GetContent(ChapterLink))
+                T.write('\n\n')
+                # 在两个章节直接预留换行，更加美观。
+            print('下载完成！')
+    ChapterLinks, BookName = GetChapterLinks(url)
+    main(GetChapterLinks, BookName)
+
+BookUrl = GetBookInfo()
+downLoad(BookUrl)
